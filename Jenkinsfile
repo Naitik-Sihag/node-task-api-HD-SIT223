@@ -48,12 +48,14 @@ pipeline {
         // STAGE 4: Security
         stage('Security') {
             steps {
-                echo "=== SECURITY STAGE ==="
-                echo "Running Snyk dependency scan..."
-                echo "Running Trivy image scan on ${DOCKER_IMAGE}..."
-                sh 'sleep 2'
-                echo "Security Scans: 0 Critical Vulnerabilities"
-            }
+        echo "=== SECURITY STAGE ==="
+        sh '''
+            export PATH=$PATH:/usr/local/bin:/opt/homebrew/bin
+            npm audit --audit-level=high || true
+            trivy fs --exit-code 0 --severity HIGH,CRITICAL . || true
+            echo "Security scan complete"
+        '''
+    }
         }
 
         // STAGE 5: Deploy
